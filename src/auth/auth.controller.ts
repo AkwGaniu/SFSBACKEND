@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body  } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { UserRegDto } from './dto/user.reg.dto';
 import { UserLoginDto } from './dto/user.reg.dto';
 import { AuthService } from './auth.service';
@@ -16,4 +16,8 @@ export class AuthController {
         return this.authServices.userLogin(user)
     }
 
+    @Get('activate_account/:activationId')
+    verifyAccount(@Param('activationId') activationId) {
+        return this.authServices.userRegistration({})
+    }
 }

@@ -6,7 +6,10 @@ import { AuthModule } from './auth/auth.module'
 import config  from './config.keys';
 
 @Module({
-  imports: [AuthModule, MongooseModule.forRoot(config.DBURI)],
+  imports: [
+    AuthModule,
+    MongooseModule.forRoot(config.DBURI)
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

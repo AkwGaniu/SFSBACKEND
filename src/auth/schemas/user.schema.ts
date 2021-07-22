@@ -14,6 +14,14 @@ export const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    activationString: {
+        type: String,
+        default: null
+    },
+    isActivated: {
+        type: Boolean,
+        default: false
+    },
     password: {
         type: String,
         required: true,
