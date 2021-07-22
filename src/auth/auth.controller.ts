@@ -15,7 +15,7 @@ export class AuthController {
     login(@Body() user: UserLoginDto): object  {
         return this.authServices.userLogin(user)
     }
-
+    
     @Get('activate_account/:activationId')
     verifyAccount(@Param('activationId') activationId) {
         return this.authServices.activateAccount(activationId)
