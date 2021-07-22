@@ -43,8 +43,10 @@ export class AuthService {
     }
     async activateAccount(activationId: string): Promise<object> {
         try {
-            
+            await this.userModel.findOneAndUpdate({ activationString: activationId }, { activationString: null, isActivated: true })
+            return { error: 0, message: 'Account activated successful' }
         } catch (error) {
+           console.log(error)
            return { error: 5, message: 'Oops some error ocurred, please try again' }
         }
     }

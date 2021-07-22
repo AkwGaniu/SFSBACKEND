@@ -18,6 +18,6 @@ export class AuthController {
 
     @Get('activate_account/:activationId')
     verifyAccount(@Param('activationId') activationId) {
-        return this.authServices.userRegistration({})
+        return this.authServices.activateAccount(activationId)
     }
 }
