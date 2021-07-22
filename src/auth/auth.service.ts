@@ -57,12 +57,18 @@ export class AuthService {
                 const comfirmPass = await confirmPassword(user.password, userExist.password)
                 if (!comfirmPass) return { error: 2, message: 'Incorrect password' }
                 const token: string = createToken({ userId: userExist._id, tokenLife: '2 days' })
-                return { error: 2, message: 'Login successful', data: { token: token } }
+                const returnData = {
+                    firstName: userExist.firstName,
+                    lastName: userExist.lastName,
+                    email: userExist.email,
+                    userId: userExist._id
+                }
+                return { error: 2, message: 'Login successful', data: { token: token, user: returnData } }
             } else {
                 return { error: 1, message: 'Invalid parameter(s)' }
             }
         } catch (error) {
-        //    console.log(error.toString()) 
+           console.log(error.toString()) 
            return { error: 5, message: 'Oops some error ocurred, please try again' }
         }
     }
