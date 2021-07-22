@@ -20,4 +20,14 @@ export class AuthController {
     verifyAccount(@Param('activationId') activationId) {
         return this.authServices.activateAccount(activationId)
     }
+
+    // @Post('/forget_password')
+    // forgetPassword(@Body() user: UserLoginDto): object {
+    //     return this.authServices.forgetPassword(user.email)
+    // }
+
+    @Post('password_reset')
+    resetPassword(@Body() user: UserLoginDto) {
+        return this.authServices.resetPassword({ email: user.email, password: user.newPassword })
+    }
 }

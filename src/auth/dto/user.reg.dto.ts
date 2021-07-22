@@ -7,5 +7,6 @@ export class UserRegDto {
 
 export class UserLoginDto {
     readonly email: string;
-    readonly password: string
+    readonly password: string;
+    readonly newPassword?: string
 }

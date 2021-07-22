@@ -48,7 +48,7 @@ export const sendAccountValidationMail = (data) => {
 }
 
 export const sendPasswordResetMail = (data) => {
-  const emailTemplateSource = fs.readFileSync(path.join(__dirname, "../template/mail/passwordReset.hbs"), "utf8")
+  const emailTemplateSource = fs.readFileSync(path.join(__dirname, "../../template/mail/passwordReset.hbs"), "utf8")
   const template = handlebars.compile(emailTemplateSource)
   const end = data.email.indexOf('@')
   const username = data.email.substring(0, end)
