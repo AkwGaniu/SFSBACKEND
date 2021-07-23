@@ -27,3 +27,6 @@ export const UserSchema = new mongoose.Schema({
         required: true,
     }
 })
+
+
+export const User = mongoose.model('User', UserSchema)

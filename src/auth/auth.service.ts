@@ -9,9 +9,14 @@ import { sendAccountValidationMail, sendPasswordResetMail } from '../helperFunct
 import { validEmail } from '../helperFunctions/utilities'
 import { hashPassword, confirmPassword } from '../helperFunctions/password.helper';
 import { createToken, decodeToken } from '../helperFunctions/jwt.functions'
+import { JwtService } from '@nestjs/jwt'
+
 @Injectable()
 export class AuthService {
-    constructor(@InjectModel('User') private readonly userModel: Model<UserFormat>) {}
+    constructor(
+        @InjectModel('User') private readonly userModel: Model<UserFormat>,
+        private readonly jwtService: JwtService
+    ) {}
     async userRegistration(user: UserFormat): Promise<RespData> {
         try {
             if (user.email && user.password && user.firstName && user.lastName) {
@@ -43,7 +48,7 @@ export class AuthService {
     async activateAccount(activationId: string): Promise<object> {
         try {
             await this.userModel.findOneAndUpdate({ activationString: activationId }, { activationString: null, isActivated: true })
-            return { error: 0, message: 'Account activated successful' }
+            return { error: 0, message: 'Account activated successfully' }
         } catch (error) {
         //    console.log(error)
            return { error: 5, message: 'Oops some error ocurred, please try again' }
@@ -54,16 +59,18 @@ export class AuthService {
             if (user.email && user.password) {
                 const userExist = await this.userModel.findOne({ email: user.email })
                 if (!userExist) return { error: 2, message: 'Account not found' }
+                if (userExist && !userExist.isActivated) return { error: 3, message: 'Account not activated' }
                 const comfirmPass = await confirmPassword(user.password, userExist.password)
-                if (!comfirmPass) return { error: 2, message: 'Incorrect password' }
-                const token: string = createToken({ userId: userExist._id, tokenLife: '2 days' })
+                if (!comfirmPass) return { error: 3, message: 'Incorrect password' }
+                const token: string = await this.generateJwt(userExist._id)
+                // const token: string = createToken({ userId: userExist._id, tokenLife: '2 days' })
                 const returnData = {
                     firstName: userExist.firstName,
                     lastName: userExist.lastName,
                     email: userExist.email,
                     userId: userExist._id
                 }
-                return { error: 2, message: 'Login successful', data: { token: token, user: returnData } }
+                return { error: 0, message: 'Login successful', data: { token: token, user: returnData } }
             } else {
                 return { error: 1, message: 'Invalid parameter(s)' }
             }
@@ -71,6 +78,9 @@ export class AuthService {
            console.log(error.toString()) 
            return { error: 5, message: 'Oops some error ocurred, please try again' }
         }
+    }
+    generateJwt (userId: string): Promise<string> {
+        return this.jwtService.signAsync({userId: userId})
     }
     // async forgetPassword(email: string): Promise<RespData> {
     //     try {
