@@ -1,35 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { RespData } from './interfaces/response.interface';
 import { UserFormat } from './interfaces/user.interface';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
 const uniqueKeygen = require('unique-keygen');
 import config  from '../config.keys';
-import { sendAccountValidationMail, sendPasswordResetMail } from '../helperFunctions/email.services'
+import { sendAccountValidationMail } from '../helperFunctions/email.services'
 import { validEmail } from '../helperFunctions/utilities'
 import { hashPassword, confirmPassword } from '../helperFunctions/password.helper';
-import { createToken, decodeToken } from '../helperFunctions/jwt.functions'
 import { JwtService } from '@nestjs/jwt'
+import { PrismaService } from '../prisma.service';
+import { User, Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectModel('User') private readonly userModel: Model<UserFormat>,
+        // @InjectModel('User') private readonly userModel: Model<UserFormat>,
+        private readonly prisma: PrismaService,
         private readonly jwtService: JwtService
     ) {}
-    async userRegistration(user: UserFormat): Promise<RespData> {
+    async userRegistration(user: Prisma.UserCreateInput): Promise<RespData> {
         try {
             if (user.email && user.password && user.firstName && user.lastName) {
                 if (!validEmail(user.email)) return { error: 2, message: 'Invalid email address' }
-                const userExist = await this.userModel.findOne({ email: user.email })
+                // const userExist = await this.userModel.findOne({ email: user.email })
+                const userExist = await this.prisma.user.findUnique({
+                    where: {
+                        email: user.email
+                    }
+                })
                 if (userExist) return { error: 2, message: 'A user with that email address already exist' }
                 const hashedPassword = await hashPassword(user.password)
                 user.password = hashedPassword
                 user.activationString = uniqueKeygen(30)
-                const newUser = new this.userModel(user)
-                await newUser.save()
-                // send mail here
-                const url: string = `${config.BASEURL}/auth/activate_account/${user.activationString}`
+                user.userId = uniqueKeygen(50)
+                await this.prisma.user.create({ data: user })
+                const url: string = `${config.BASEURL}/auth/activate_account/${user.userId}${user.activationString}`
                 const emailData = {
                     email: user.email,
                     activationUrl: url,
@@ -47,7 +51,8 @@ export class AuthService {
     }
     async activateAccount(activationId: string): Promise<object> {
         try {
-            await this.userModel.findOneAndUpdate({ activationString: activationId }, { activationString: null, isActivated: true })
+            const userId = activationId.substring(0, 50)
+            await this.prisma.user.update({ where: { userId: userId }, data: { activationString: null, isActivated: true }})
             return { error: 0, message: 'Account activated successfully' }
         } catch (error) {
         //    console.log(error)
@@ -57,18 +62,17 @@ export class AuthService {
     async userLogin(user: UserFormat): Promise<RespData> {
         try {
             if (user.email && user.password) {
-                const userExist = await this.userModel.findOne({ email: user.email })
+                const userExist = await this.prisma.user.findUnique({ where: { email: user.email } })
                 if (!userExist) return { error: 2, message: 'Account not found' }
                 if (userExist && !userExist.isActivated) return { error: 3, message: 'Account not activated' }
                 const comfirmPass = await confirmPassword(user.password, userExist.password)
                 if (!comfirmPass) return { error: 3, message: 'Incorrect password' }
-                const token: string = await this.generateJwt(userExist._id)
-                // const token: string = createToken({ userId: userExist._id, tokenLife: '2 days' })
+                const token: string = await this.generateJwt(userExist.userId)
                 const returnData = {
                     firstName: userExist.firstName,
                     lastName: userExist.lastName,
                     email: userExist.email,
-                    userId: userExist._id
+                    userId: userExist.id.toString()
                 }
                 return { error: 0, message: 'Login successful', data: { token: token, user: returnData } }
             } else {
@@ -103,10 +107,10 @@ export class AuthService {
     async resetPassword(user: UserFormat): Promise<RespData> {
         try {
             if (user.email && user.password) {
-                const userExist = await this.userModel.findOne({ email: user.email })
+                const userExist = await this.prisma.user.findUnique({ where: { email: user.email } })
                 if (!userExist) return { error: 2, message: 'No Account found for this email address' }
                 const newPassword: string = await hashPassword(user.password)
-                await this.userModel.findOneAndUpdate({ email: user.email }, { password: newPassword })
+                await this.prisma.user.update({ where: { userId: userExist.userId }, data: { password: newPassword }})
                 return { error: 0, message: 'Password reset successful' }
             } else {
                 return { error: 1, message: 'Invalid parameter(s)' }

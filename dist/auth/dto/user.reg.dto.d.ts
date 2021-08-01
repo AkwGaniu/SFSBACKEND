@@ -1,13 +1,12 @@
-export class UserRegDto {
+export declare class UserRegDto {
     readonly userId: string;
     readonly firstName: string;
     readonly lastName: string;
     readonly email: string;
-    readonly password: string
+    readonly password: string;
 }
-
-export class UserLoginDto {
+export declare class UserLoginDto {
     readonly email: string;
     readonly password: string;
-    readonly newPassword?: string
+    readonly newPassword?: string;
 }
