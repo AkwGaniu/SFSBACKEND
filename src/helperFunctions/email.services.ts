@@ -1,9 +1,9 @@
-const fs = require('fs')
+import fs from 'fs'
 "use strict";
 const nodemailer = require('nodemailer')
 import handlebars from 'handlebars'
 import config  from '../config.keys';
-const path = require('path')
+import path from 'path'
 
 const smtpTransport = nodemailer.createTransport({
   host: config.HOST,

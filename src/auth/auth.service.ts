@@ -8,7 +8,7 @@ import { validEmail } from '../helperFunctions/utilities'
 import { hashPassword, confirmPassword } from '../helperFunctions/password.helper';
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from '../prisma.service';
-import { User, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthService {

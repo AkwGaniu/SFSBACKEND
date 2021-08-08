@@ -32,6 +32,7 @@ AuthModule = __decorate([
         ],
         controllers: [auth_controller_1.AuthController],
         providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, jwt_auth_guards_1.JwtAuthGuard, prisma_service_1.PrismaService],
+        exports: []
     })
 ], AuthModule);
 exports.AuthModule = AuthModule;

@@ -9,26 +9,26 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JwtStrategy = void 0;
-const passport_jwt_1 = require("passport-jwt");
-const passport_1 = require("@nestjs/passport");
+exports.AccessMe = void 0;
 const common_1 = require("@nestjs/common");
-const config_keys_1 = require("../../config.keys");
-let JwtStrategy = class JwtStrategy extends passport_1.PassportStrategy(passport_jwt_1.Strategy) {
-    constructor() {
-        super({
-            jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false,
-            secretOrKey: config_keys_1.default.JWT_SECRET,
-        });
+const core_1 = require("@nestjs/core");
+const utilities_1 = require("../../helperFunctions/utilities");
+let AccessMe = class AccessMe {
+    constructor(reflector) {
+        this.reflector = reflector;
     }
-    async validate(payload) {
-        return { 'userId': payload.userId };
+    canActivate(context) {
+        const roles = this.reflector.get('roles', context.getHandler());
+        if (!roles) {
+            return false;
+        }
+        const request = context.switchToHttp().getRequest();
+        return utilities_1.getSingleUser(request.user.userId).then(user => roles.includes(user.role));
     }
 };
-JwtStrategy = __decorate([
+AccessMe = __decorate([
     common_1.Injectable(),
-    __metadata("design:paramtypes", [])
-], JwtStrategy);
-exports.JwtStrategy = JwtStrategy;
-//# sourceMappingURL=jwt.strategy.js.map
+    __metadata("design:paramtypes", [core_1.Reflector])
+], AccessMe);
+exports.AccessMe = AccessMe;
+//# sourceMappingURL=permission.auth.guard.js.map

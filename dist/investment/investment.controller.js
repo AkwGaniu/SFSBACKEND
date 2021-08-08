@@ -15,8 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InvestmentController = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_auth_guards_1 = require("../auth/guards/jwt-auth.guards");
+const permission_auth_guard_1 = require("../auth/guards/permission.auth.guard");
 const response_interface_1 = require("../auth/interfaces/response.interface");
+const custom_decorator_1 = require("../auth/decorator/custom.decorator");
 const investment_service_1 = require("./investment.service");
+const role_decoraror_1 = require("../auth/decorator/role.decoraror");
+const user_enums_1 = require("../auth/enum/user.enums");
 let InvestmentController = class InvestmentController {
     constructor(investmentServices) {
         this.investmentServices = investmentServices;
@@ -26,7 +30,8 @@ let InvestmentController = class InvestmentController {
     }
 };
 __decorate([
-    common_1.UseGuards(jwt_auth_guards_1.JwtAuthGuard),
+    role_decoraror_1.hasRoles(user_enums_1.UserRole.ADMIN, user_enums_1.UserRole.USER),
+    common_1.UseGuards(jwt_auth_guards_1.JwtAuthGuard, permission_auth_guard_1.AccessMe),
     common_1.Get('user_investment'),
     __param(0, common_1.Req()),
     __metadata("design:type", Function),

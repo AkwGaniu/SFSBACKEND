@@ -5,4 +5,5 @@ export interface UserFormat {
     password: string;
     isActivated?: boolean;
     activationString?: string;
+    role?: string;
 }

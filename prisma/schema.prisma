@@ -1,6 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -19,6 +18,7 @@ model User {
   activationString String?
   isActivated      Boolean?    @default(false)
   password         String
+  role UserRole @default(USER)
   investment       Investment?
 }
 
@@ -30,4 +30,9 @@ model Investment {
   totalEarned        String
   totalPayoff        String
   numberOfInvestment String
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
