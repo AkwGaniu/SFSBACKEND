@@ -5,7 +5,7 @@ import { RespData } from 'src/auth/interfaces/response.interface';
 import { UserDecorator } from 'src/auth/decorator/custom.decorator';
 import { InvestmentService } from './investment.service';
 import { hasRoles } from 'src/auth/decorator/role.decoraror';
-import { UserRole } from 'src/auth/enum/user.enums';
+import { UserRole } from '.prisma/client';
 @Controller('investment')
 export class InvestmentController {
 

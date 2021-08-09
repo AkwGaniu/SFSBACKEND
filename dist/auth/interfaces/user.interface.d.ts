@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 export interface UserFormat {
     firstName?: string;
     lastName?: string;
@@ -5,5 +6,5 @@ export interface UserFormat {
     password: string;
     isActivated?: boolean;
     activationString?: string;
-    role?: string;
+    role?: UserRole;
 }

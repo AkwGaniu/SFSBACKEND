@@ -39,6 +39,7 @@ let AuthService = class AuthService {
                 user.password = hashedPassword;
                 user.activationString = uniqueKeygen(30);
                 user.userId = uniqueKeygen(50);
+                user.role = utilities_1.setRole(user.role);
                 await this.prisma.user.create({ data: user });
                 const url = `${config_keys_1.default.BASEURL}/auth/activate_account/${user.userId}${user.activationString}`;
                 const emailData = {
@@ -54,6 +55,7 @@ let AuthService = class AuthService {
             }
         }
         catch (error) {
+            console.log(error);
             return { error: 5, message: 'Oops some error ocurred, please try again' };
         }
     }

@@ -4,12 +4,11 @@ import { UserFormat } from './interfaces/user.interface';
 const uniqueKeygen = require('unique-keygen');
 import config  from '../config.keys';
 import { sendAccountValidationMail } from '../helperFunctions/email.services'
-import { validEmail } from '../helperFunctions/utilities'
+import { setRole, validEmail } from '../helperFunctions/utilities'
 import { hashPassword, confirmPassword } from '../helperFunctions/password.helper';
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from '../prisma.service';
-import { Prisma } from '@prisma/client';
-
+import { Prisma, UserRole } from '@prisma/client';
 @Injectable()
 export class AuthService {
     constructor(
@@ -32,6 +31,8 @@ export class AuthService {
                 user.password = hashedPassword
                 user.activationString = uniqueKeygen(30)
                 user.userId = uniqueKeygen(50)
+                user.role = setRole(user.role)
+                // user.role = user.role.toUpperCase()
                 await this.prisma.user.create({ data: user })
                 const url: string = `${config.BASEURL}/auth/activate_account/${user.userId}${user.activationString}`
                 const emailData = {
@@ -45,7 +46,7 @@ export class AuthService {
                 return { error: 1, message: 'Invalid parameter(s)' }
             }
         } catch (error) {
-        //    console.log(error)
+           console.log(error)
            return { error: 5, message: 'Oops some error ocurred, please try again' }
         }
     }
