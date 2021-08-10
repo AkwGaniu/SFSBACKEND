@@ -84,8 +84,10 @@ export class AuthService {
            return { error: 5, message: 'Oops some error ocurred, please try again' }
         }
     }
-    generateJwt (userId: string): Promise<string> {
-        return this.jwtService.signAsync({userId: userId})
+    generateJwt (userId: string, ): Promise<string> {
+        return this.jwtService.signAsync({ userId: userId, options: {
+            expiresIn: '10000s'
+        } })
     }
     // async forgetPassword(email: string): Promise<RespData> {
     //     try {
